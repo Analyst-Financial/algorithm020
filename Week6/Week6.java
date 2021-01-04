@@ -16,28 +16,10 @@ public class Week6 {
      * 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ）。
      * 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。
      * 问总共有多少条不同的路径？
-     */
-
-    public int uniquePaths(int m, int n) {
-        int[][] f = new int[m][n];
-        for (int i = 0; i < m; ++i) {
-            f[i][0] = 1;
-        }
-        for (int j = 0; j < n; ++j) {
-            f[0][j] = 1;
-        }
-        for (int i = 1; i < m; ++i) {
-            for (int j = 1; j < n; ++j) {
-                f[i][j] = f[i - 1][j] + f[i][j - 1];
-            }
-        }
-        return f[m - 1][n - 1];
-    }
-
-    /**
+     * *****************************************************************************************************************
      * 超哥方法1
      */
-    public int uniquePaths2(int m, int n) {
+    public int uniquePaths(int m, int n) {
         int[][] dp = new int[m][n];
         for (int i = 0; i < m; ++i) dp[i][0] = 1;
         for (int j = 0; j < n; ++j) dp[0][j] = 1;
@@ -51,8 +33,42 @@ public class Week6 {
 
     /**
      * 超哥方法2
+     * 从上往下 && 从左往右 循环
+     */
+    public int uniquePaths2(int m, int n) {
+        int[][] dp = new int[m][n]; //从<start>走到(i,j)的不同路径数
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 || j == 0)
+                    dp[i][j] = 1;
+                else
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+
+    /**
+     * 超哥方法3
+     * 从下往上 && 从右往左 循环
      */
     public int uniquePaths3(int m, int n) {
+        int[][] dp = new int[m][n]; //从(i,j)走到end的不同路径数
+        for (int i = m - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= 0; j--) {
+                if (i == m - 1 || j == n - 1)
+                    dp[i][j] = 1;
+                else
+                    dp[i][j] = dp[i + 1][j] + dp[i][j + 1];
+            }
+        }
+        return dp[0][0];
+    }
+
+    /**
+     * 方法4
+     */
+    public int uniquePaths4(int m, int n) {
         int[] cur = new int[n];
         Arrays.fill(cur, 1);
         for (int i = 1; i < m; ++i) {
@@ -64,15 +80,33 @@ public class Week6 {
     }
 
     /**
-     * 63. 不同路径 II
+     * 63. 不同路径 II （谷歌、美团、微软在半年内面试中考过）
      * 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
      * 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
      * 现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
      * 网格中的障碍物和空位置分别用 1 和 0 来表示。
      * 输入：obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
      * 输出：2
+     * *****************************************************************************************************************
+     * 超哥的方法:
      */
     public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        int m = obstacleGrid.length;
+        int n = obstacleGrid[0].length;
+        int[] dp = new int[n + 1];
+        dp[1] = 1;
+        for (int i = 0; i < m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (obstacleGrid[i][j - 1] == 1) { //障碍物
+                    dp[j] = 0;
+                } else {
+                    dp[j] = dp[j] + dp[j - 1]; //dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+        return dp[n];
+    }
+    public int uniquePathsWithObstacles2(int[][] obstacleGrid) {
         int width = obstacleGrid[0].length;
         int[] dp = new int[width];
         dp[0] = 1;
@@ -188,6 +222,106 @@ public class Week6 {
     }
 
     /**
+     * 递归代码模版
+     * public void recur(int level, int param) {
+     *      // terminator
+     *      if (level > MAX_LEVEL) {
+     *          // process result
+     *          return;
+     *      }
+     *      // process current logic
+     *      process(level, param);
+     *      // drill down
+     *      recur( level: level + 1, newParam);
+     *      // restore current status
+     * }
+     */
+
+    /**
+     * 分治代码模板
+     *  def divide_conquer(problem, param1, param2, ...):
+     *      # recursion terminator
+     *      if problem is None:
+     *          print_result
+     *          return
+     *
+     *      # prepare data
+     *      data = prepare_data(problem)
+     *      subproblems = split_problem(problem, data)
+     *
+     *      # conquer subproblems
+     *      subresult1 = self.divide_conquer(subproblems[0], p1, ...)
+     *      subresult2 = self.divide_conquer(subproblems[1], p1, ...)
+     *      subresult3 = self.divide_conquer(subproblems[2], p1, ...)
+     *      …
+     *
+     *      # process and generate the final result
+     *      result = process_result(subresult1, subresult2, subresult3, …)
+     *      # revert the current level states
+     *
+     * 感触
+     * 1. 人肉递归低效、很累
+     * 2. 找到最近最简方法，将其拆解成可重复解决的问题
+     * 3. 数学归纳法思维（抵制人肉递归的诱惑）
+     * 本质：寻找重复性 —> 计算机指令集
+     */
+
+    /**
+     *
+     * 动态规划 Dynamic Programming
+     * 1. Wiki 定义：
+     *    https://en.wikipedia.org/wiki/Dynamic_programming
+     * 2.“Simplifying a complicated problem by breaking it down into
+     *    simpler sub-problems”
+     *    (in a recursive manner)
+     * 3.Divide & Conquer + Optimal substructure
+     * 分治 + 最优子结构
+     * *****************************************************************************************************************
+     * 关键点
+     * 动态规划 和 递归或者分治 没有根本上的区别（关键看有无最优的子结构）
+     * 共性：找到重复子问题
+     * 差异性：最优子结构、中途可以淘汰次优解
+     * *****************************************************************************************************************
+     * 状态转移方程（DP 方程）
+     * opt[i , j] = opt[i + 1, j] + opt[i, j + 1]
+     * 完整逻辑：
+     * if a[i, j] = ‘空地’:
+     *    opt[i , j] = opt[i + 1, j] + opt[i, j + 1]
+     * else:
+     *    opt[i , j] = 0
+     * *****************************************************************************************************************
+     * 实战例题二
+     * 路径计数 Count the paths
+     * 动态规划关键点
+     * 1. 最优子结构 opt[n] = best_of(opt[n-1], opt[n-2], …)
+     * 2. 储存中间状态：opt[i]
+     * 3. 递推公式（美其名曰：状态转移方程或者 DP 方程）
+     * Fib: opt[i] = opt[n-1] + opt[n-2]
+     * 二维路径：opt[i,j] = opt[i+1][j] + opt[i][j+1] (且判断a[i,j]是否空地）
+     * *****************************************************************************************************************
+     * 实战例题三
+     * 最长公共子序列
+     * 子问题
+     * • S1 = “ABAZDC”
+     *   S2 = “BACBAD”
+     * • If S1[-1] != S2[-1]: LCS[s1, s2] = Max(LCS[s1-1, s2], LCS[s1, s2-1])
+     *   LCS[s1, s2] = Max(LCS[s1-1, s2], LCS[s1, s2-1], LCS[s1-1, s2-1])
+     * • If S1[-1] == S2[-1]: LCS[s1, s2] = LCS[s1-1, s2-1] + 1
+     *   LCS[s1, s2] = Max(LCS[s1-1, s2], LCS[s1, s2-1], LCS[s1-1, s2-1], LCS[s1-1][s2-1] + 1)
+     * *****************************************************************************************************************
+     * DP 方程
+     * • If S1[-1] != S2[-1]: LCS[s1, s2] = Max(LCS[s1-1, s2], LCS[s1, s2-1])
+     * • If S1[-1] == S2[-1]: LCS[s1, s2] = LCS[s1-1, s2-1] + 1
+     * 动态规划小结
+     * 1. 打破自己的思维惯性，形成机器思维
+     * 2. 理解复杂逻辑的关键
+     * 3. 也是职业进阶的要点要领
+     * MIT algorithm course
+     * B 站搜索： mit 动态规划
+     * https://www.bilibili.com/video/av53233912?from=search&seid=2847395688604491997
+     */
+
+    /**
      * 64. 最小路径和（亚马逊、高盛集团、谷歌在半年内面试中考过）
      * 给定一个包含非负整数的 m x n 网格 grid ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
      * 说明：每次只能向下或者向右移动一步。
@@ -195,6 +329,18 @@ public class Week6 {
      * 输出：7
      * 解释：因为路径 1→3→1→1→1 的总和最小。
      * https://leetcode-cn.com/problems/minimum-path-sum/solution/zui-xiao-lu-jing-he-dong-tai-gui-hua-gui-fan-liu-c/
+     * *****************************************************************************************************************
+     * 第5周 第12课 | 动态规划（一）
+     * 2. DP例题解析：Fibonacci数列、路径计数
+     * 所谓最优子结构：推导出的第n步的值，是前面几个值的最佳值的简单累加，或者最大值，或者最小值。
+     * 状态转移方程(DP方程)
+     * opt[i,j] = opt[i+1,j] + opt[i,j+1]
+     * 完整逻辑:
+     * if a[i,j] ='空地' :
+     *    opt[i,j] = opt[i+1,j] + opt[i,j+1]
+     * else :
+     *    opt[i,j] = 0
+     * 动态规划关键点
      */
     public int minPathSum2(int[][] grid) {
         for (int i = 0; i < grid.length; i++) {
@@ -373,4 +519,8 @@ public class Week6 {
         }
         return maxSide * maxSide;
     }
+
+
+
+
 }
