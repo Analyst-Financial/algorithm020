@@ -1,6 +1,6 @@
 package algorithm;
 
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * @ClassName Week7
@@ -12,10 +12,39 @@ import java.util.HashMap;
 public class Week7 {
 
     /**
+     * 102. 二叉树的层序遍历
+     * 给你一个二叉树，请你返回其按 层序遍历 得到的节点值。 （即逐层地，从左到右访问所有节点）。
+     */
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<List<Integer>>();
+        if (root == null) {
+            return res;
+        }
+
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            List<Integer> level = new ArrayList<Integer>();
+            int currentLevelSize = queue.size();
+            for (int i = 1; i <= currentLevelSize; ++i) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            res.add(level);
+        }
+
+        return res;
+    }
+    /**
      * 208. 实现 Trie (前缀树) （亚马逊、微软、谷歌在半年内面试中考过）
      * 实现一个 Trie (前缀树)，包含 insert, search, 和 startsWith 这三个操作。
      * Trie trie = new Trie();
-     *
      * trie.insert("apple");
      * trie.search("apple");   // 返回 true
      * trie.search("app");     // 返回 false
